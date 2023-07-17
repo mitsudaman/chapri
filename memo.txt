@@ -1,0 +1,41 @@
+docker-compose down --rmi all --volumes --remove-orphans
+docker-compose run --rm web rails new . --force --database=mysql
+docker-compose build
+
+config/database.yml
+  password: password
+  host: db
+
+docker-compose run --rm web rails db:create
+
+docker-compose up -d
+docker exec -it chapri-web-1 /bin/bash
+
+rails g model User name:string
+rails g model Room name:string
+rails g model Entry user_id:integer room_id:integer
+rails g model Message content:string user_id:integer room_id:integer
+
+rails g controller rooms show
+
+User.create(:name => "アルミン")
+Room.create(:name => "進撃の部屋")
+Entry.create(:room_id => 1, :user_id => 1)
+Entry.create(:room_id => 1, :user_id => 2)
+Message.create(:room_id => 1, :user_id => 1, :content => "何か起きねぇかな")
+
+
+<h1><% @entries.each do |entry| %>
+  <%= entry.user.name %> 
+  <% end %>とのチャット部屋</h1>
+部屋ID：<%= @room_id %>
+<form>
+  <input id="content" type="text" data-behavior="room_speaker">
+  <button id="post_button" class="button">送信</button>
+</form>
+<div id="messages">
+  <%= render @messages %>
+</div>
+
+
+Rails.logger.debug "出力したい内容"
